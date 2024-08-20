@@ -1,5 +1,15 @@
 // content.js
-
+const jDictUrl = chrome.runtime.getURL('scripts/data/dictionary.js');
+const mainURL = chrome.runtime.getURL('scripts/main.js');
+console.log(jDictUrl + " and " + mainURL);
+const jDict = document.createElement('script');
+jDict.src = jDictUrl;
+(document.head || document.documentElement).appendChild(jDict);
+const jieba = document.createElement('script');
+jieba.src = mainURL;
+(document.head || document.documentElement).appendChild(jieba);
+const result = jieba.cut("我的中文東西。");
+console.log(result);
 
 async function fetchDefinition(character) {
     try {
@@ -24,21 +34,31 @@ function displayInfo(definition) {
     wordInfo.innerText = definition;
 }
 
+let captionSpan, captionText, segText;
 let newCaptionObserver = new MutationObserver(() => {
     // CALLBACK FUNC
-    console.log("New caption!");
+    // FIX: occurs when zooming or change console width
+    if (captionSpan) {
+        console.log("New caption!");
+        captionText = captionSpan.firstChild.firstChild.firstChild.firstChild.textContent;
+        console.log(captionText);
+        script.onload = function() {
+            segText = jieba.cut(captionText);
+            console.log(segText);
+        }
+    }
 
 })
 
 const observer = new MutationObserver(() => {
     // CALLBACK FUNC
-    let captionSpan = document.getElementById('ytp-caption-window-container');
+    captionSpan = document.getElementById('ytp-caption-window-container');
     if (captionSpan) {
         observer.disconnect();
         newCaptionObserver.observe(captionSpan, {
             characterData: false,
             childList: true,
-            subtree: true
+            subtree: false
         })
     }
 });
@@ -56,11 +76,11 @@ document.addEventListener('mouseover', (event) => {
         if (textNode && textNode.parentNode.closest('.ytp-caption-segment')) {
             //console.log(textNode.textContent);
 
-            let word = textNode.nodeValue.trim();
+            /*let word = textNode.nodeValue.trim();
             if (word) {
                 let definition = fetchDefinition(word);
                 displayInfo(definition);
-            }
+            }*/
         }
     }
 });

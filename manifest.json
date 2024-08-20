@@ -5,12 +5,24 @@
     "description": "Hover over Chinese characters to see their meanings",
     "permissions": [
         "activeTab",
-        "storage"
+        "storage",
+        "scripting"
     ],
     "content_scripts": [
         {
             "matches": ["*://www.youtube.com/*"],
-            "js": ["content.js"]
+            "js": [
+                "content.js"
+            ]
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "scripts/data/dictionary.js",
+                "scripts/main.js"
+            ],
+            "matches": ["<all_urls>"]
         }
     ],
     "action": {
